@@ -47,4 +47,40 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorEntity, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(BookingsNotFound.class)
+    public ResponseEntity<ErrorEntity> handleBookingsNotFound(BookingsNotFound e){
+        ErrorEntity errorEntity = new ErrorEntity(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                "Bookings not found"
+        );
+
+        return new ResponseEntity<>(errorEntity, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SeatHoldNotOwnedException.class)
+    public ResponseEntity<ErrorEntity> handleSeatNotHeldByUser(SeatHoldNotOwnedException e){
+        ErrorEntity errorEntity = new ErrorEntity(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                e.getMessage(),
+                "User doesn't own this seat"
+        );
+
+        return new ResponseEntity<>(errorEntity, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(SeatUnavailableException.class)
+    public ResponseEntity<ErrorEntity> handleSeatUnavailable(SeatUnavailableException e){
+        ErrorEntity errorEntity = new ErrorEntity(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                e.getMessage(),
+                "Seat is unavailable"
+        );
+
+        return new ResponseEntity<>(errorEntity, HttpStatus.CONFLICT);
+    }
 }

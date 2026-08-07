@@ -1,8 +1,6 @@
 package com.nzube.bookingsystem.service;
 
-import com.nzube.bookingsystem.exception.BookingsNotFound;
-import com.nzube.bookingsystem.exception.SeatNotFoundException;
-import com.nzube.bookingsystem.exception.UserNotFoundException;
+import com.nzube.bookingsystem.exception.*;
 import com.nzube.bookingsystem.model.Bookings;
 import com.nzube.bookingsystem.model.BookingsResponseDto;
 import com.nzube.bookingsystem.model.Seat;
@@ -53,13 +51,17 @@ public class BookingService {
             Seat seat = seatRepo.findById(seatId)
                     .orElseThrow(() -> new SeatNotFoundException("Seat not found: " + seatId));
 
-            boolean isHeldByThisUser = "held".equals(seat.getStatus())
-                    && userId==(seat.getHeldByUserId())
-                    && seat.getHeldUntil().isAfter(LocalDateTime.now());
+            if(seat.getStatus().equals("booked")){
+                throw new SeatUnavailableException("Seat already booked");
+            }
 
-            if(!isHeldByThisUser)
-            {
-                throw new RuntimeException("Seat hold has expired or is not yours... please select the seat again");
+            if(userId!=seat.getHeldByUserId() || !"held".equals(seat.getStatus())){
+                throw new SeatHoldNotOwnedException("This user doesn't hold this seat");
+            }
+
+
+            if(seat.getHeldUntil().isBefore(LocalDateTime.now())){
+                throw new SeatHoldNotOwnedException("Seat hold has expired");
             }
 
             seat.setStatus("booked");

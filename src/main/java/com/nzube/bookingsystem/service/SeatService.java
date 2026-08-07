@@ -1,6 +1,8 @@
 package com.nzube.bookingsystem.service;
 
+import com.nzube.bookingsystem.exception.SeatHoldNotOwnedException;
 import com.nzube.bookingsystem.exception.SeatNotFoundException;
+import com.nzube.bookingsystem.exception.SeatUnavailableException;
 import com.nzube.bookingsystem.model.Seat;
 import com.nzube.bookingsystem.repo.SeatRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,7 @@ public class SeatService {
                 .orElseThrow(() -> new SeatNotFoundException("Seat not found"));
 
         if (seat.getEvent().getId()!=eventId) {
-            throw new RuntimeException("Seat does not belong to this event");
+            throw new SeatNotFoundException("Seat does not belong to this event");
         }
 
         boolean isHoldExpired = "held".equals(seat.getStatus())
@@ -35,7 +37,7 @@ public class SeatService {
                 && seat.getHeldUntil().isBefore(LocalDateTime.now());
 
         if (!"available".equals(seat.getStatus()) && !isHoldExpired) {
-            throw new RuntimeException("Seat is not available");
+            throw new SeatUnavailableException("Seat is not available");
         }
 
         seat.setStatus("held");
@@ -54,11 +56,11 @@ public class SeatService {
         Seat seat = seatRepo.findById(seatId).orElseThrow(()->new SeatNotFoundException("Seat not found"));
 
         if (seat.getEvent().getId()!=eventId) {
-            throw new RuntimeException("Seat does not belong to this event");
+            throw new SeatNotFoundException("Seat does not belong to this event");
         }
 
         if(userId!=seat.getHeldByUserId()){
-            throw new RuntimeException("You dont own this seat");
+            throw new SeatHoldNotOwnedException("You dont own this seat");
         }
 
         seat.setStatus("available");
