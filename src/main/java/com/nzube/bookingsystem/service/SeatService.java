@@ -1,0 +1,76 @@
+package com.nzube.bookingsystem.service;
+
+import com.nzube.bookingsystem.exception.SeatNotFoundException;
+import com.nzube.bookingsystem.model.Seat;
+import com.nzube.bookingsystem.repo.SeatRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+@Service
+public class SeatService {
+
+    private final SeatRepo seatRepo;
+
+    @Autowired
+    public SeatService(SeatRepo seatRepo) {
+        this.seatRepo = seatRepo;
+    }
+
+    @Transactional
+    public Seat holdSeat(int eventId, int seatId, int userId) {
+
+        Seat seat = seatRepo.findById(seatId)
+                .orElseThrow(() -> new SeatNotFoundException("Seat not found"));
+
+        if (seat.getEvent().getId()!=eventId) {
+            throw new RuntimeException("Seat does not belong to this event");
+        }
+
+        boolean isHoldExpired = "held".equals(seat.getStatus())
+                && seat.getHeldUntil() != null
+                && seat.getHeldUntil().isBefore(LocalDateTime.now());
+
+        if (!"available".equals(seat.getStatus()) && !isHoldExpired) {
+            throw new RuntimeException("Seat is not available");
+        }
+
+        seat.setStatus("held");
+        seat.setHeldByUserId(userId);
+        seat.setHeldUntil(LocalDateTime.now().plusMinutes(5));
+
+        try {
+            return seatRepo.save(seat);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new RuntimeException("Seat was just taken by someone else");
+        }
+    }
+
+    @Transactional
+    public void releaseHold(int eventId, int seatId, int userId){
+        Seat seat = seatRepo.findById(seatId).orElseThrow(()->new SeatNotFoundException("Seat not found"));
+
+        if (seat.getEvent().getId()!=eventId) {
+            throw new RuntimeException("Seat does not belong to this event");
+        }
+
+        if(userId!=seat.getHeldByUserId()){
+            throw new RuntimeException("You dont own this seat");
+        }
+
+        seat.setStatus("available");
+        seat.setHeldByUserId(0);
+        seat.setHeldUntil(null);
+
+        try {
+        seatRepo.save(seat);
+        } catch (ObjectOptimisticLockingFailureException e){
+            throw new RuntimeException("Seat state changed while releasing, please refresh and try again");
+        }
+
+
+    }
+}
