@@ -8,7 +8,7 @@ import com.nzube.bookingsystem.model.User;
 import com.nzube.bookingsystem.repo.BookingsRepo;
 import com.nzube.bookingsystem.repo.SeatRepo;
 import com.nzube.bookingsystem.repo.UserRepo;
-import jakarta.persistence.OptimisticLockException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,8 +71,8 @@ public class BookingService {
 
             try {
                 seatRepo.save(seat);
-            } catch (OptimisticLockException e) {
-                throw new RuntimeException("Seat " + seatId + " was just booked by someone else");
+            } catch (ObjectOptimisticLockingFailureException e) {
+                throw new SeatUnavailableException("Seat " + seatId + " was just booked by someone else");
             }
 
             Bookings booking = new Bookings();
