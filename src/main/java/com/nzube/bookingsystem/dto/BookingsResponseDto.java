@@ -1,4 +1,6 @@
-package com.nzube.bookingsystem.model;
+package com.nzube.bookingsystem.dto;
+
+import com.nzube.bookingsystem.model.Bookings;
 
 import java.time.LocalDateTime;
 

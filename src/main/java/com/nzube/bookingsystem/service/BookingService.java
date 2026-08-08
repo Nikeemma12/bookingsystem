@@ -2,7 +2,7 @@ package com.nzube.bookingsystem.service;
 
 import com.nzube.bookingsystem.exception.*;
 import com.nzube.bookingsystem.model.Bookings;
-import com.nzube.bookingsystem.model.BookingsResponseDto;
+import com.nzube.bookingsystem.dto.BookingsResponseDto;
 import com.nzube.bookingsystem.model.Seat;
 import com.nzube.bookingsystem.model.User;
 import com.nzube.bookingsystem.repo.BookingsRepo;
@@ -55,12 +55,15 @@ public class BookingService {
                 throw new SeatUnavailableException("Seat already booked");
             }
 
-            if(userId!=seat.getHeldByUserId() || !"held".equals(seat.getStatus())){
+            if(!"held".equals(seat.getStatus())){
+                throw new SeatHoldNotOwnedException("This seat is not on hold");
+            }
+
+            if(userId!=seat.getHeldByUserId()) {
                 throw new SeatHoldNotOwnedException("This user doesn't hold this seat");
             }
 
-
-            if(seat.getHeldUntil().isBefore(LocalDateTime.now())){
+            if(seat.getHeldUntil() == null || seat.getHeldUntil().isBefore(LocalDateTime.now())){
                 throw new SeatHoldNotOwnedException("Seat hold has expired");
             }
 

@@ -36,7 +36,13 @@ public class SeatService {
             throw new SeatUnavailableException("Seat already Booked");
         }
 
-        if("held".equals(seat.getStatus())){
+
+        //CHECKS WHETHER SEAT HOLD HAS EXPIRED
+        boolean hasExpiredHold = "held".equals(seat.getStatus())
+                && seat.getHeldUntil() != null
+                && seat.getHeldUntil().isBefore(LocalDateTime.now());
+
+        if ("held".equals(seat.getStatus()) && !hasExpiredHold) {
             throw new SeatUnavailableException("Seat already held by another user");
         }
 
@@ -59,6 +65,10 @@ public class SeatService {
             throw new SeatNotFoundException("Seat does not belong to this event");
         }
 
+        if (!"held".equals(seat.getStatus())) {
+            throw new SeatUnavailableException("Seat is not currently held");
+        }
+
         if(userId!=seat.getHeldByUserId()){
             throw new SeatHoldNotOwnedException("You dont own this seat");
         }
@@ -72,7 +82,5 @@ public class SeatService {
         } catch (ObjectOptimisticLockingFailureException e){
             throw new SeatUnavailableException("Seat state changed while releasing, please refresh and try again");
         }
-
-
     }
 }

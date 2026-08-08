@@ -3,61 +3,63 @@ package com.nzube.bookingsystem.exception;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @NullMarked
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorEntity> handleUserError(UserNotFoundException e){
+    public ResponseEntity<ErrorEntity> handleUserNotFoundError(UserNotFoundException e){
 
         ErrorEntity errorEntity =new ErrorEntity(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.NOT_FOUND.value(),
                 e.getMessage(),
                 "User not found"
         );
-        return new ResponseEntity<>(errorEntity, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorEntity, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(SeatNotFoundException.class)
-    public ResponseEntity<ErrorEntity> handleSeatError(SeatNotFoundException e){
+    public ResponseEntity<ErrorEntity> handleSeatNotFoundError(SeatNotFoundException e){
 
         ErrorEntity errorEntity =new ErrorEntity(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.NOT_FOUND.value(),
                 e.getMessage(),
                 "Seat not found"
         );
-        return new ResponseEntity<>(errorEntity, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorEntity, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(EventNotFoundException.class)
-    public ResponseEntity<ErrorEntity> handleEventError(EventNotFoundException e){
+    public ResponseEntity<ErrorEntity> handleEventNotFoundError(EventNotFoundException e){
 
         ErrorEntity errorEntity =new ErrorEntity(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.NOT_FOUND.value(),
                 e.getMessage(),
                 "Event not found"
         );
-        return new ResponseEntity<>(errorEntity, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorEntity, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BookingsNotFound.class)
-    public ResponseEntity<ErrorEntity> handleBookingsNotFound(BookingsNotFound e){
+    public ResponseEntity<ErrorEntity> handleBookingsNotFoundError(BookingsNotFound e){
         ErrorEntity errorEntity = new ErrorEntity(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.NOT_FOUND.value(),
                 e.getMessage(),
                 "Bookings not found"
         );
 
-        return new ResponseEntity<>(errorEntity, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorEntity, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(SeatHoldNotOwnedException.class)
@@ -82,5 +84,36 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(errorEntity, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorEntity> handleGenericErrors(Exception e){
+
+        ErrorEntity errorEntity = new ErrorEntity(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                e.getMessage(),
+                "Something went wrong"
+        );
+
+        return new ResponseEntity<>(errorEntity, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorEntity> handleNonValidErrorTypes(MethodArgumentNotValidException e) {
+        String message = e.getBindingResult().getFieldErrors().stream().map(fieldError ->
+                fieldError
+                        .getField() + ": " + (fieldError
+                        .getDefaultMessage() != null ? fieldError.getDefaultMessage(): "Invalid value"))
+                .collect(Collectors.joining(","));
+
+        ErrorEntity errorEntity = new ErrorEntity(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                message,
+                "Invalid Value"
+
+        );
+        return new ResponseEntity<>(errorEntity, HttpStatus.BAD_REQUEST);
     }
 }

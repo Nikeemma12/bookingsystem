@@ -2,7 +2,7 @@ package com.nzube.bookingsystem.service;
 
 import com.nzube.bookingsystem.exception.EventNotFoundException;
 import com.nzube.bookingsystem.model.Bookings;
-import com.nzube.bookingsystem.model.BookingsResponseDto;
+import com.nzube.bookingsystem.dto.BookingsResponseDto;
 import com.nzube.bookingsystem.model.Event;
 import com.nzube.bookingsystem.model.Seat;
 import com.nzube.bookingsystem.repo.BookingsRepo;
@@ -24,14 +24,19 @@ public class EventService {
         this.bookingsRepo = bookingsRepo;
     }
 
-    public Event createEvent(Event event) {
+    public Event createEvent(String name,int rows, int seatPerRows) {
 
         List<Seat> seats = new ArrayList<>();
 
-        for (int i = 0; i < event.getRows(); i++) {
+        Event event = new Event();
+        event.setName(name);
+        event.setRows(rows);
+        event.setSeatPerRows(seatPerRows);
+
+        for (int i = 0; i < rows; i++) {
             char row = (char) ('A' + i);
 
-            for (int j = 1; j <= event.getSeatPerRows(); j++) {
+            for (int j = 1; j <= seatPerRows; j++) {
                 Seat seat = new Seat();
                 seat.setEvent(event);
                 seat.setRow(row);

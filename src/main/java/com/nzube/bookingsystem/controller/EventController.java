@@ -1,17 +1,18 @@
 package com.nzube.bookingsystem.controller;
 
 
-import com.nzube.bookingsystem.model.BookingsResponseDto;
+import com.nzube.bookingsystem.dto.BookingsResponseDto;
+import com.nzube.bookingsystem.dto.CreateEventDto;
 import com.nzube.bookingsystem.model.Event;
 import com.nzube.bookingsystem.model.Seat;
 import com.nzube.bookingsystem.service.EventService;
 import com.nzube.bookingsystem.service.SeatService;
-import org.apache.coyote.Response;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.*;
 
 import java.util.List;
 
@@ -30,9 +31,10 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestBody Event event){
-
-        return new ResponseEntity<>(eventService.createEvent(event), HttpStatus.CREATED);
+    public ResponseEntity<Event> createEvent(@Valid @RequestBody CreateEventDto createEvent){
+        return new ResponseEntity<>(
+                eventService.createEvent(createEvent.name(),createEvent.rows(),createEvent.seatPerRows()),
+                HttpStatus.CREATED);
     }
 
     @GetMapping

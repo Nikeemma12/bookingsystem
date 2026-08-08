@@ -1,7 +1,8 @@
 package com.nzube.bookingsystem.controller;
 
 
-import com.nzube.bookingsystem.model.BookingsResponseDto;
+import com.nzube.bookingsystem.dto.BookingsResponseDto;
+import com.nzube.bookingsystem.dto.UserCreateDto;
 import com.nzube.bookingsystem.model.User;
 import com.nzube.bookingsystem.service.BookingService;
 import com.nzube.bookingsystem.service.UserService;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
 
 import java.util.List;
 
@@ -34,8 +37,8 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> addUser (@RequestBody User user){
-        return new ResponseEntity<>(userService.addUser(user), HttpStatus.CREATED);
+    public ResponseEntity<User> addUser (@Valid @RequestBody UserCreateDto user){
+        return new ResponseEntity<>(userService.addUser(user.name()), HttpStatus.CREATED);
     }
 
     @GetMapping("{userId}")
@@ -58,8 +61,9 @@ public class UserController {
     }
 
     @DeleteMapping("{userId}/bookings/{idempotencyKey}")
-    public void cancelBookings(@PathVariable int userId, @PathVariable String idempotencyKey){
+    public ResponseEntity<Void> cancelBookings(@PathVariable int userId, @PathVariable String idempotencyKey){
         bookService.cancelBookings(userId, idempotencyKey);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
