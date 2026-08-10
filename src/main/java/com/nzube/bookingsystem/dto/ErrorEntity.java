@@ -1,4 +1,4 @@
-package com.nzube.bookingsystem.exception;
+package com.nzube.bookingsystem.dto;
 
 import java.time.LocalDateTime;
 

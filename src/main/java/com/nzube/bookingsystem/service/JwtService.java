@@ -1,5 +1,6 @@
 package com.nzube.bookingsystem.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,28 +25,30 @@ public class JwtService {
                 .signWith(key)
                 .compact();
     }
-
-    public String extractUsername(String token) {
-
+    
+    private Claims getClaims(String token) {
         return Jwts
                 .parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
+                .getPayload();
+    }
+
+    public String extractUsername(String token) {
+        return getClaims(token)
                 .getSubject();
     }
 
-    public boolean validateToken(String token, String username, UserDetails userDetails) {
-
-        return username.equals(userDetails.getUsername()) &&
-                Jwts
-                        .parser()
-                        .verifyWith(key)
-                        .build()
-                        .parseSignedClaims(token)
-                        .getPayload()
-                        .getExpiration()
-                        .after(new Date());
+    private boolean isTokenExpired(String token){
+        return getClaims(token)
+                .getExpiration()
+                .before(new Date());
     }
+
+    public boolean validateToken(String token, String username, UserDetails userDetails) {
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+
 }
