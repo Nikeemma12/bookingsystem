@@ -1,4 +1,4 @@
-package com.nzube.bookingsystem;
+package com.nzube.bookingsystem.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

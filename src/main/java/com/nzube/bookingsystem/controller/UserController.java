@@ -3,6 +3,7 @@ package com.nzube.bookingsystem.controller;
 
 import com.nzube.bookingsystem.dto.BookingsResponseDto;
 import com.nzube.bookingsystem.dto.UserCreateDto;
+import com.nzube.bookingsystem.dto.UserLoginDto;
 import com.nzube.bookingsystem.model.User;
 import com.nzube.bookingsystem.service.BookingService;
 import com.nzube.bookingsystem.service.UserService;
@@ -39,6 +40,16 @@ public class UserController {
     @PostMapping
     public ResponseEntity<User> addUser (@Valid @RequestBody UserCreateDto user){
         return new ResponseEntity<>(userService.addUser(user.name()), HttpStatus.CREATED);
+    }
+
+    @PostMapping("auth/register")
+    public ResponseEntity<User> registerUser(@Valid @RequestBody UserCreateDto user){
+        return new ResponseEntity<>(userService.registerUser(user.name(), user.password(), user.email(), user.role()), HttpStatus.CREATED);
+    }
+
+    @PostMapping("auth/login")
+    public ResponseEntity<String> loginUser(@Valid @RequestBody UserLoginDto user){
+        return new ResponseEntity<>(userService.loginUser(user.email(), user.password()), HttpStatus.OK);
     }
 
     @GetMapping("{userId}")

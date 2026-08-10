@@ -99,6 +99,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorEntity, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorEntity> handleBadCredentialsError(BadCredentialsException e){
+
+        ErrorEntity errorEntity = new ErrorEntity(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                e.getMessage(),
+                "Something went wrong"
+        );
+
+        return new ResponseEntity<>(errorEntity, HttpStatus.UNAUTHORIZED);
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorEntity> handleNonValidErrorTypes(MethodArgumentNotValidException e) {
         String message = e.getBindingResult().getFieldErrors().stream().map(fieldError ->
