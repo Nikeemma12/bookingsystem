@@ -1,5 +1,6 @@
 package com.nzube.bookingsystem.service;
 
+import com.nzube.bookingsystem.dto.UserRegisterDto;
 import com.nzube.bookingsystem.exception.UserNotFoundException;
 import com.nzube.bookingsystem.dto.BookingsResponseDto;
 import com.nzube.bookingsystem.model.User;
@@ -30,17 +31,24 @@ public class UserService {
     }
 
 
-    public User registerUser(String name, String password, String email, String role){
+    public User registerUser(UserRegisterDto userRegisterDto){
         User user = new User();
-        user.setName(name);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setEmail(email);
-        user.setRole(role);
+        user.setName(userRegisterDto.name());
+        user.setPassword(passwordEncoder.encode(userRegisterDto.password()));
+        user.setEmail(userRegisterDto.email());
+        user.setRole("ROLE_USER");
         return userRepo.save(user);
     }
-    public User addUser(String name){
+    public User registerByAdmin(UserRegisterDto userRegisterDto){
         User user = new User();
-        user.setName(name);
+        user.setName(userRegisterDto.name());
+        user.setPassword(passwordEncoder.encode(userRegisterDto.password()));
+        user.setEmail(userRegisterDto.email());
+        if (userRegisterDto.role().equals("ROLE_ADMIN")) {
+            user.setRole("ROLE_ADMIN");
+        } else {
+            user.setRole("ROLE_USER");
+        }
         return userRepo.save(user);
     }
 
