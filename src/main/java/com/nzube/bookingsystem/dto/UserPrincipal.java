@@ -1,5 +1,6 @@
-package com.nzube.bookingsystem.model;
+package com.nzube.bookingsystem.dto;
 
+import com.nzube.bookingsystem.model.User;
 import jakarta.annotation.Nullable;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;

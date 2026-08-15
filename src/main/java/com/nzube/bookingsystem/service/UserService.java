@@ -1,5 +1,7 @@
 package com.nzube.bookingsystem.service;
 
+import com.nzube.bookingsystem.dto.LoginResult;
+import com.nzube.bookingsystem.dto.UserPrincipal;
 import com.nzube.bookingsystem.dto.UserRegisterDto;
 import com.nzube.bookingsystem.exception.UserNotFoundException;
 import com.nzube.bookingsystem.dto.BookingsResponseDto;
@@ -21,13 +23,15 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
 
-    public UserService(UserRepo userRepo, BCryptPasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService) {
+    public UserService(UserRepo userRepo, BCryptPasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, RefreshTokenService refreshTokenService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
 
@@ -66,10 +70,18 @@ public class UserService {
                 .getBookings().stream().map(BookingsResponseDto::from).toList();
     }
 
-    public String loginUser(String email, String password) {
+    public LoginResult loginUser(String email, String password) {
 
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = userPrincipal.user();
+        String accessToken = jwtService.generateToken(email);
+        String refreshToken = refreshTokenService.generateRefreshToken(user);
 
-        return jwtService.generateToken(email);
+        return new LoginResult(accessToken, refreshToken);
+    }
+
+    public void logoutUser(String refreshToken) {
+        refreshTokenService.logoutUser(refreshToken);
     }
 }

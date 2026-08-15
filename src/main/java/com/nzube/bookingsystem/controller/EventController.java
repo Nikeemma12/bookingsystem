@@ -5,7 +5,7 @@ import com.nzube.bookingsystem.dto.BookingsResponseDto;
 import com.nzube.bookingsystem.dto.CreateEventDto;
 import com.nzube.bookingsystem.model.Event;
 import com.nzube.bookingsystem.model.Seat;
-import com.nzube.bookingsystem.model.UserPrincipal;
+import com.nzube.bookingsystem.dto.UserPrincipal;
 import com.nzube.bookingsystem.service.EventService;
 import com.nzube.bookingsystem.service.SeatService;
 import org.jspecify.annotations.NullMarked;

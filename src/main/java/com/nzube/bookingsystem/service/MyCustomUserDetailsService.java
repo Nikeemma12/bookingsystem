@@ -1,7 +1,7 @@
 package com.nzube.bookingsystem.service;
 
 import com.nzube.bookingsystem.model.User;
-import com.nzube.bookingsystem.model.UserPrincipal;
+import com.nzube.bookingsystem.dto.UserPrincipal;
 import com.nzube.bookingsystem.repo.UserRepo;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;

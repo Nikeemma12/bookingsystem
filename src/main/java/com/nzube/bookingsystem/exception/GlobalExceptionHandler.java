@@ -130,4 +130,37 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorEntity, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(RefreshTokenNotFoundException.class)
+    public ResponseEntity<ErrorEntity> handleRefreshTokenNotFound(RefreshTokenNotFoundException e){
+        ErrorEntity errorEntity = new ErrorEntity(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                e.getMessage(),
+                "Invalid refresh token"
+        );
+        return new ResponseEntity<>(errorEntity, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(RefreshTokenReuseException.class)
+    public ResponseEntity<ErrorEntity> handleRefreshTokenReuse(RefreshTokenReuseException e){
+        ErrorEntity errorEntity = new ErrorEntity(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                e.getMessage(),
+                "Session revoked — please log in again"
+        );
+        return new ResponseEntity<>(errorEntity, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(RefreshTokenExpiredException.class)
+    public ResponseEntity<ErrorEntity> handleRefreshTokenExpired(RefreshTokenExpiredException e){
+        ErrorEntity errorEntity = new ErrorEntity(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                e.getMessage(),
+                "Refresh token expired"
+        );
+        return new ResponseEntity<>(errorEntity, HttpStatus.UNAUTHORIZED);
+    }
 }
